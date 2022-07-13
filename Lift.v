@@ -33,8 +33,8 @@ input clk,
      [2:0] pass_f,           // этаж на котором пассажир нажал кнопку вызова
 //      busy_i,           // состояние лифта свободен/занят
 
-output [2:0] elev_f_o,
-       busy_o
+output reg [2:0] elev_f_o,
+       wire busy_o
 
     );
     
@@ -43,11 +43,14 @@ output [2:0] elev_f_o,
               MOVE = 2'b10;
     
 reg [1:0] state, next;
-reg [2:0] elev_floor;
+//reg [2:0] elev_floor;
 reg flag;
 
 assign busy_o = flag;
-assign elev_f_o = elev_floor;
+//assign elev_f_o = elev_floor;
+
+assign butt_up_down = 1'b0;
+
 
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) state <= IDLE;
@@ -55,27 +58,27 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 
-always @(*) begin
+always @(state or butt_up_down or butt_el) begin
     next = 'bx;
     case(state)
     IDLE: begin
           flag <= 1'b0;
-          elev_floor = 3'b001;
+          elev_f_o <= 3'b011;
                         next = WAIT;
           end
     WAIT: if (butt_up_down) begin
                  flag <= 1'b1;
                  $display("The button has pressed on the %d floor", pass_f);
-                 while (elev_floor != pass_f) begin 
-                        elev_floor <= elev_floor < pass_f ? elev_floor + 1 : elev_floor - 1;
-                 $display("Elevator is on the %d floor", elev_floor);      
+                 while (elev_f_o != pass_f) begin 
+                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;
+                 $display("Elevator is on the %d floor", elev_f_o);      
                  end
                         next = MOVE;
           end
           else   flag <= 1'b0;
     MOVE: if (butt_el > 0) begin
-                 while (elev_floor != butt_el) begin 
-                        elev_floor <= elev_floor < butt_el ? elev_floor + 1 : elev_floor - 1;
+                 while (elev_f_o != butt_el) begin 
+                        elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
                end 
                         next = WAIT;
           end
