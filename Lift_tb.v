@@ -24,7 +24,7 @@ module Lift_tb();
       reg   clk;
       reg   rst_n;
 //      reg   num_of_floors;    // количество этажей в доме
-      reg   [2:0] butt_el;          // кнопка с номером этажа в лифте
+      reg   [2:0] butt_el;          // кнопка с номерам этажа в лифте
       reg   butt_up_down;     // кнопка вызова лифта на этаже
 //      reg   [2:0] elev_f;           // этаж на котором находится лифт
       reg   [2:0] pass_f;           // этаж на котором пассажир нажал кнопку вызова
@@ -57,17 +57,17 @@ module Lift_tb();
       #30;
       rst_n = 0;
       
-      pass_f = 3'b011; // ïàññàæèð íà 3
+      pass_f <= 3'b011; // пассажир на 3
      
-      butt_up_down = 1'b1;
+      butt_up_down <= 1'b1;
       
-      butt_el = 3'b111;
+      butt_el <= 3'b111;
+      #200;
+      pass_f <= 3'b010;
       
-      pass_f = 3'b010;
+      butt_up_down <= 1'b1;
       
-      butt_up_down = 1'b1;
-      
-      butt_el = 3'b101;
+      butt_el <= 3'b101;
       
       end
       
