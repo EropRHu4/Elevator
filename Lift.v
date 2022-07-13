@@ -63,7 +63,7 @@ always @(state or butt_up_down or butt_el) begin
     case(state)
     IDLE: begin
           flag <= 1'b0;
-          elev_f_o <= 3'b011;
+          elev_f_o <= 3'b001;
                         next = WAIT;
           end
     WAIT: if (butt_up_down) begin
