@@ -76,7 +76,7 @@ always @(state or butt_up_down or butt_el) begin
                         next = MOVE;
           end
           else   flag <= 1'b0;
-    MOVE: if (butt_el > 0) begin
+    MOVE: if (butt_el) begin
                  while (elev_f_o != butt_el) begin 
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
                end 
