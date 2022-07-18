@@ -49,8 +49,6 @@ reg flag;
 assign busy_o = flag;
 //assign elev_f_o = elev_floor;
 
-assign butt_up_down = 1'b0;
-
 
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) state <= IDLE;
@@ -58,7 +56,7 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 
-always @(state or butt_up_down or butt_el) begin
+always @(posedge clk) begin
     next = 'bx;
     case(state)
     IDLE: begin
@@ -68,8 +66,9 @@ always @(state or butt_up_down or butt_el) begin
           end
     WAIT: if (butt_up_down) begin
                  flag <= 1'b1;
+                
                  if (elev_f_o != pass_f) begin 
-                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;    
+                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;      
                  end
                         next = MOVE;
           end
@@ -84,6 +83,11 @@ always @(state or butt_up_down or butt_el) begin
                   flag <= 1'b0;
                         next = WAIT;
                 end
+     default: begin
+                flag <= 1'b0;
+                elev_f_o <= 3'b001;
+                        next = WAIT;
+          end
           endcase
     end 
 endmodule
