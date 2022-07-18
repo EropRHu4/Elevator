@@ -53,9 +53,9 @@ module Lift_tb();
       
       initial begin
       clk = 1'b0;
-      rst_n = 1;
-      #30;
       rst_n = 0;
+      #30;
+      rst_n = 1;
       
       pass_f <= 3'b011; // пассажир на 3
      
