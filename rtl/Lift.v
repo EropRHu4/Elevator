@@ -68,16 +68,14 @@ always @(state or butt_up_down or butt_el) begin
           end
     WAIT: if (butt_up_down) begin
                  flag <= 1'b1;
-                 $display("The button has pressed on the %d floor", pass_f);
-                 while (elev_f_o != pass_f) begin 
-                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;
-                 $display("Elevator is on the %d floor", elev_f_o);      
+                 if (elev_f_o != pass_f) begin 
+                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;    
                  end
                         next = MOVE;
           end
           else   flag <= 1'b0;
     MOVE: if (butt_el) begin
-                 while (elev_f_o != butt_el) begin 
+                 if (elev_f_o != butt_el) begin 
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
                end 
                         next = WAIT;
