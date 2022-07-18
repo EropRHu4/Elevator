@@ -24,7 +24,7 @@
 
 module Lift(
 
-input      clk, 
+input      clk,
            rst_n,
 //      num_of_floors,    // количество этажей в доме
      [2:0] butt_el,          // кнопка с номером этажа в лифте
@@ -56,7 +56,7 @@ always @( posedge clk or negedge rst_n ) begin
 end
 
 
-always @( posedge clk ) begin
+always @( clk ) begin
     next = 'bx;
     case( state )
     IDLE: begin
