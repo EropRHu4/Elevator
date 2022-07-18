@@ -24,17 +24,17 @@
 
 module Lift(
 
-input clk, 
-      rst_n,
+input      clk, 
+           rst_n,
 //      num_of_floors,    // количество этажей в доме
      [2:0] butt_el,          // кнопка с номером этажа в лифте
-      butt_up_down,     // кнопка вызова лифта на этаже
+           butt_up_down,     // кнопка вызова лифта на этаже
 //     [2:0] elev_f,           // этаж на котором находится лифт
      [2:0] pass_f,           // этаж на котором пассажир нажал кнопку вызова
 //      busy_i,           // состояние лифта свободен/занят
 
 output reg [2:0] elev_f_o,
-       wire busy_o
+       wire      busy_o
 
     );
     
@@ -50,44 +50,44 @@ assign busy_o = flag;
 //assign elev_f_o = elev_floor;
 
 
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) state <= IDLE;
+always @( posedge clk or negedge rst_n ) begin
+    if ( !rst_n ) state <= IDLE;
     else        state <= next;
 end
 
 
-always @(posedge clk) begin
+always @( posedge clk ) begin
     next = 'bx;
-    case(state)
+    case( state )
     IDLE: begin
           flag <= 1'b0;
           elev_f_o <= 3'b001;
                         next = WAIT;
           end
-    WAIT: if (butt_up_down) begin
+    WAIT: if ( butt_up_down ) begin
                  flag <= 1'b1;
                 
-                 if (elev_f_o != pass_f) begin 
+                 if ( elev_f_o != pass_f ) begin 
                         elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;      
                  end
                         next = MOVE;
           end
           else   flag <= 1'b0;
-    MOVE: if (butt_el) begin
-                 if (elev_f_o != butt_el) begin 
+    MOVE: if ( butt_el) begin
+                 if ( elev_f_o != butt_el ) begin 
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
-               end 
+                 end 
                         next = WAIT;
           end
           else  begin 
                   flag <= 1'b0;
                         next = WAIT;
-                end
+          end
      default: begin
                 flag <= 1'b0;
                 elev_f_o <= 3'b001;
                         next = WAIT;
-          end
-          endcase
-    end 
+              end
+    endcase
+end 
 endmodule
