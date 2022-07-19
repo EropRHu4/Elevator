@@ -67,7 +67,7 @@ always @( posedge clk ) begin
           doors <= 1'b0;
                         next = WAIT;
           end
-    WAIT: if ( butt_up_down == 1'b1 && flag == 1'b0 && doors == 1'b0) begin
+    WAIT: if ( butt_up_down == 1'b1 && doors == 1'b0) begin
                  flag <= 1'b1;
                  if ( elev_f_o != pass_f ) begin 
                         elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;      
