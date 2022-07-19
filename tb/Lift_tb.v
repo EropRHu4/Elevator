@@ -53,21 +53,21 @@ module Lift_tb();
       
       initial begin
       clk = 1'b0;
-      rst_n = 0;
-      #30;
       rst_n = 1;
+      #30;
+      rst_n = 0;
       
-      pass_f <= 3'b011; // пассажир на 3
+      pass_f = 3'b011; // пассажир на 3
      
-      butt_up_down <= 1'b1;
+      butt_up_down = 1'b1;
       
-      butt_el <= 3'b111;
+      butt_el = 3'b111;
       #200;
-      pass_f <= 3'b010;
+      pass_f = 3'b010;
       
-      butt_up_down <= 1'b1;
+      butt_up_down = 1'b1;
       
-      butt_el <= 3'b101;
+      butt_el = 3'b101;
       
       end
       
