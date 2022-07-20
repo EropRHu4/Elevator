@@ -34,7 +34,7 @@ input      clk,
 //      busy_i,           // состояние лифта свободен/занят
 
 output reg [2:0] elev_f_o,
-       wire      busy_o  // состояние лифта ( свободен "0" / занят "1" )
+       reg      busy_o  // состояние лифта ( свободен "0" / занят "1" )
 
     );
     
@@ -44,13 +44,12 @@ output reg [2:0] elev_f_o,
 
 reg [1:0] state, next;
 //reg [2:0] elev_floor;
-reg flag;
+//reg flag;
 
 reg doors; // индикатор дверей ( открыты "1" / закрыты "0" )
 
-assign busy_o = flag;
+//assign busy_o = flag;
 //assign elev_f_o = elev_floor;
-
 
 always @( posedge clk or negedge rst_n ) begin
     if ( !rst_n ) state <= IDLE;
@@ -62,21 +61,21 @@ always @( posedge clk ) begin
     next = 'bx;
     case( state )
     IDLE: begin
-          flag <= 1'b0;
+          busy_o <= 1'b0;
           elev_f_o <= 3'b001;
           doors <= 1'b0;
                         next = WAIT;
           end
-    WAIT: if ( butt_up_down == 1'b1 && doors == 1'b0) begin
-                 flag <= 1'b1;
-                 if ( elev_f_o != pass_f ) begin 
-                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;      
+    WAIT: if ( butt_up_down == 1'd1 && doors == 1'b0) begin
+                 busy_o <= 1'b1;
+                 if ( elev_f_o != pass_f ) begin
+                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;  
                  end
                  doors <= 1'b1;
                         next = MOVE;
-          end
-          else   flag <= 1'b0;
-    MOVE: if ( butt_el ) begin
+          end 
+          else busy_o <= 1'b0;
+    MOVE: if ( butt_el == 'bx) begin
                  doors <= 1'b0;
                  if ( elev_f_o != butt_el ) begin 
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
@@ -84,16 +83,16 @@ always @( posedge clk ) begin
                         next = WAIT;
           end
           else  begin 
-                  flag <= 1'b0;
+                  busy_o <= 1'b0;
                   doors <= 1'b0;
                         next = WAIT;
           end
     default: begin
-                flag <= 1'b0;
+                busy_o <= 1'b0;
                 elev_f_o <= 3'b001;
                 doors <= 1'b0;
                         next = WAIT;
              end
     endcase
-end 
+end
 endmodule
