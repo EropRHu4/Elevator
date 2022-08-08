@@ -48,6 +48,8 @@ reg [2:0] num_of_floors = 3'b111;   // количество этажей в до
 
 reg butt = 1'b0;
 
+reg finish = 1'b0;
+
 always @( posedge clk or negedge rst_n ) begin
     if ( !rst_n ) state <= IDLE;
     else          state <= next;
@@ -75,7 +77,7 @@ always @( posedge clk ) begin
                  else begin
                       butt <= 1'b0;
                       doors <= 1'b1;
-                 //end
+                      finish <= 1'b1;
                         next = MOVE;
                  end
           end
@@ -83,15 +85,20 @@ always @( posedge clk ) begin
     MOVE: if ( butt_el ) begin
                  doors <= 1'b0;
                  busy_o <= 1'b1;
-                 if ( elev_f_o != butt_el ) begin
+                 if ( elev_f_o != butt_el && finish == 1'b1) begin
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
                         state <= MOVE;
                         next = state;
                  end
-                 else  begin 
-                        next = WAIT;
+                 else if (elev_f_o == butt_el) begin 
+                        next = MOVE;
                         busy_o <= 1'b0;
                         doors <= 1'b1;
+                        finish <= 1'b0;
+                 end
+                 else if (elev_f_o != butt_el && finish == 1'b0) begin
+                        next <= WAIT;
+                        finish <= 1'b0;
                  end
           end
           else  begin
