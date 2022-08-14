@@ -27,7 +27,7 @@ module Lift(
 input      clk,
            rst_n,
      [2:0] butt_el,                 // кнопка с номером этажа в лифте
-           butt_up_down,            // кнопка вызова лифта на этаже
+//           butt_up_down,            // кнопка вызова лифта на этаже
      [2:0] pass_f,                  // этаж на котором пассажир нажал кнопку вызова
 
 output reg [2:0] elev_f_o,
@@ -48,7 +48,9 @@ reg [2:0] num_of_floors = 3'b111;   // количество этажей в до
 
 reg butt = 1'b0;
 
-reg finish = 1'b0;
+reg [2:0] last_floor = 'bx;
+
+reg [2:0] last_floor2 = 'bx;
 
 always @( posedge clk or negedge rst_n ) begin
     if ( !rst_n ) state <= IDLE;
@@ -63,13 +65,15 @@ always @( posedge clk ) begin
             busy_o <= 1'b0;
             elev_f_o <= 3'b001;
             doors <= 1'b0;
+            last_floor <= pass_f == 3'b111 ? pass_f - 1'b001 : pass_f + 1'b001;
+            last_floor2 <= butt_el == 3'b111 ? butt_el - 1'b001 : butt_el + 1'b001;
                         next = WAIT;
           end
     WAIT: if ( pass_f ) begin
                  busy_o <= 1'b1;
                  butt <= 1'b1;
                  doors <= 1'b0;
-                 if ( elev_f_o != pass_f ) begin
+                 if ( elev_f_o != pass_f && last_floor != pass_f) begin
                         elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;
                         state <= WAIT;
                         next = state;
@@ -77,7 +81,7 @@ always @( posedge clk ) begin
                  else begin
                       butt <= 1'b0;
                       doors <= 1'b1;
-                      finish <= 1'b1;
+                      last_floor <= pass_f;
                         next = MOVE;
                  end
           end
@@ -85,20 +89,28 @@ always @( posedge clk ) begin
     MOVE: if ( butt_el ) begin
                  doors <= 1'b0;
                  busy_o <= 1'b1;
-                 if ( elev_f_o != butt_el && finish == 1'b1) begin
+                 if ( elev_f_o != butt_el && last_floor2 != butt_el) begin
                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
                         state <= MOVE;
                         next = state;
                  end
-                 else if (elev_f_o == butt_el) begin 
+                 else if (elev_f_o == butt_el && last_floor != pass_f) begin
+                        next = WAIT;
+                        busy_o <= 1'b0;
+                        doors <= 1'b1;
+                        last_floor2 <= butt_el;
+                 end
+                 else if (elev_f_o == butt_el && last_floor == pass_f) begin 
                         next = MOVE;
                         busy_o <= 1'b0;
                         doors <= 1'b1;
-                        finish <= 1'b0;
+                        last_floor2 <= butt_el;
                  end
-                 else if (elev_f_o != butt_el && finish == 1'b0) begin
-                        next <= WAIT;
-                        finish <= 1'b0;
+                 else if ( last_floor2 != butt_el) begin
+                        next = MOVE;
+                 end
+                 else if ( last_floor2 == butt_el && last_floor == pass_f ) begin
+                        next = MOVE;
                  end
           end
           else  begin
