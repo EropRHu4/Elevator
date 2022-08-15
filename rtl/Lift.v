@@ -78,11 +78,16 @@ always @( posedge clk ) begin
                         state <= WAIT;
                         next = state;
                  end
-                 else begin
+                 else if(elev_f_o == pass_f && last_floor2 != butt_el) begin
                       butt <= 1'b0;
                       doors <= 1'b1;
                       last_floor <= pass_f;
                         next = MOVE;
+                 end
+                 else begin 
+                        next = WAIT;
+                        butt <= 1'b0;
+                        doors <= 1'b1;
                  end
           end
           else busy_o <= 1'b0;
@@ -105,9 +110,6 @@ always @( posedge clk ) begin
                         busy_o <= 1'b0;
                         doors <= 1'b1;
                         last_floor2 <= butt_el;
-                 end
-                 else if ( last_floor2 != butt_el) begin
-                        next = MOVE;
                  end
                  else if ( last_floor2 == butt_el && last_floor == pass_f ) begin
                         next = MOVE;
