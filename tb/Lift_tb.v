@@ -44,11 +44,11 @@ module elevator_tb();
       );
       
       always begin
-      #5;
+      #2.5;
       clk = ~clk;
       end
       
-     initial begin
+      initial begin
       clk = 1'b0;
       rst_n = 0;
       #10;
@@ -56,18 +56,27 @@ module elevator_tb();
       
       
       pass_f = 3'b011;  // пассажир на 3
-
-      butt_el = 3'b010; // 2
-      #200;
+      #100;
+      pass_f = 0;
+      if (elev_f_o == 3'b011) butt_el = 3'b111; // 7
+      #100;
+      butt_el = 0;
+      
+      
+      pass_f = 3'b001; // 1
+      #100;
+      pass_f = 0;
+      if (elev_f_o == 3'b001) butt_el = 3'b010;  // 2
+      #100;
+      butt_el = 0;
+      
+      
       pass_f = 3'b111; // 7
-
-      butt_el = 3'b010;  // 2
-      #200;
-      pass_f = 3'b111; // 7
-      #200;
-      butt_el = 3'b110; // 6
-      #200;
-      butt_el = 3'b100; // 4
+      #100;
+      pass_f = 0;
+      if (elev_f_o == 3'b111) butt_el = 3'b110;  // 6
+      #100;
+      butt_el = 0;
       end
       
 endmodule
