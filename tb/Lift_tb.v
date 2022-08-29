@@ -44,7 +44,7 @@ module elevator_tb();
       );
       
       always begin
-      #2.5;
+      #1;
       clk = ~clk;
       end
       
