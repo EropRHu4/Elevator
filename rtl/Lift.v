@@ -51,17 +51,14 @@ reg butt = 1'b0;
 
 reg [2:0] time_cnt = 0;
 
-reg [2:0] pass_f_reg = 0;
+reg flag_pass = 0;
 
-reg [2:0] butt_el_reg = 0;
-
+reg flag_butt = 0;
 
 always @( posedge clk ) begin
     if ( !rst_n ) state <= IDLE;
     else begin
             state <= next;
-            pass_f_reg <= pass_f == 0 ? pass_f_reg : pass_f;
-            butt_el_reg <= butt_el == 0 ? butt_el_reg : butt_el;
     end
 end
 
@@ -77,14 +74,14 @@ always @( posedge clk ) begin
           end
 
     WAIT: begin
-            if ( |pass_f || |butt_el )
+            if ( |pass_f && flag_pass == 0 )
                     next = MOVE;
-            else
-                    next = WAIT;
+            else if ( |butt_el && flag_butt == 0 )
+                    next = MOVE;
+            else next = WAIT;
     end
 
     MOVE: begin
-            time_cnt <= 1'b0;
             if ( |pass_f ) begin
                 butt <= 1'b1;
                 if ( elev_f_o != pass_f ) begin
@@ -110,7 +107,6 @@ always @( posedge clk ) begin
             else if ( |butt_el == 0 || |pass_f == 0) next = WAIT; 
     end
 
-
     DOORS:      begin
                     doors <= 1'b1;
                     if ( time_cnt != 3'b011 ) begin
@@ -121,13 +117,16 @@ always @( posedge clk ) begin
                             next = WAIT;
                             doors <= 1'b0;
                             time_cnt <= 1'b0;
+                            flag_pass <= 1'b1;
+                            flag_butt <= 1'b0;
                     end
                     else if ( |butt_el && time_cnt == 3'b011) begin
                             next = WAIT;
                             doors <= 1'b0;
                             time_cnt <= 1'b0;
+                            flag_pass <= 1'b0;
+                            flag_butt <= 1'b1;
                     end
-                    else next = DOORS;
                     if (time_cnt == 3'b011 && (|pass_f == 0 && |butt_el == 0)) begin
                             doors <= 1'b0;
                             next = WAIT;
