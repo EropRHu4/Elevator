@@ -24,19 +24,13 @@
 
 module Lift(
 
-input      clk,
-           rst_n,
-    [15:0] SW,
+input        clk,
+             rst_n,
+       [3:0] SW,
 
-output     CA,
-           CB,
-           CC,
-           CD,
-           CE,
-           CF,
-           CG,
-           DP,
-     [7:0] AN
+output [7:0] HEX,    
+       [2:0] AN,
+  reg  [7:0] LED
 
     );
 
@@ -47,14 +41,6 @@ output     CA,
 
 reg [7:0] hex;
 
-assign CA = hex[0];
-assign CB = hex[1];
-assign CC = hex[2];
-assign CD = hex[3];
-assign CE = hex[4];
-assign CF = hex[5];
-assign CG = hex[6];
-assign DP = hex[7];
 
 reg [1:0] state, next;
 
@@ -66,9 +52,9 @@ reg butt = 1'b0;
 
 reg [2:0] time_cnt = 0;
 
-reg flag_pass = 0;
+reg [2:0] elev_f_o = 0;
 
-reg flag_butt = 0;
+reg [31:0] cnt = 'd0;
 
 always @( posedge clk or negedge rst_n) begin
     if ( !rst_n ) state <= IDLE;
@@ -82,42 +68,40 @@ always @( posedge clk ) begin
     next = 'bx;
     case( state )
     IDLE: begin
-            elev_f_o <= 3'b001;
             doors <= 1'b0;
             next = WAIT;
+            LED[0] <= 1'b1;
+            elev_f_o <= 1'b0;
+            LED[7:1] <= 0;
           end
 
     WAIT: begin
-            if ( |pass_f && flag_pass == 0 )
-                    next = MOVE;
-            else if ( |butt_el && flag_butt == 0 )
+            if ( |SW[2:0] )
                     next = MOVE;
             else next = WAIT;
     end
 
     MOVE: begin
-            if ( |pass_f ) begin
+            if ( |SW[2:0] ) begin
                 butt <= 1'b1;
-                if ( elev_f_o != pass_f ) begin
-                        elev_f_o <= elev_f_o < pass_f ? elev_f_o + 1 : elev_f_o - 1;
+                LED[elev_f_o] <= 1'b0;
+                if ( elev_f_o != SW[2:0] && SW[3]) begin
+                        elev_f_o <= elev_f_o < SW[2:0] ? elev_f_o + 1 : elev_f_o - 1;
                         next = MOVE;
+//                        if (cnt != 'd4000_000_000) begin
+//                            cnt <= cnt + 'd1;
+//                            LED[elev_f_o] <= 1'b1;
+//                        end
+//                        else LED[elev_f_o] <= 1'b0;
                 end
-                else if( elev_f_o == pass_f ) begin
+                else if( elev_f_o == SW[2:0] ) begin
                             butt <= 1'b0;
-                            next = DOORS;    
+                            next = DOORS;
+                            LED[elev_f_o] <= 1'b1;
                 end
             end
-            else if ( |butt_el ) begin
-            butt <= 1'b0;
-                  if ( elev_f_o != butt_el ) begin
-                         elev_f_o <= elev_f_o < butt_el ? elev_f_o + 1 : elev_f_o - 1;
-                         next = MOVE;
-                  end
-                  else if ( elev_f_o == butt_el ) begin
-                              next = DOORS;
-                  end 
-            end
-            else if ( |butt_el == 0 || |pass_f == 0) next = WAIT; 
+            else 
+                next = WAIT; 
     end
 
     DOORS:      begin
@@ -126,21 +110,12 @@ always @( posedge clk ) begin
                             time_cnt <= time_cnt + 1'b1;
                             next = DOORS;
                     end
-                    if ( |pass_f && time_cnt == 3'b011 ) begin
+                    if ( |SW[2:0] && time_cnt == 3'b011 ) begin
                             next = WAIT;
                             doors <= 1'b0;
                             time_cnt <= 1'b0;
-                            flag_pass <= 1'b1;
-                            flag_butt <= 1'b0;
                     end
-                    else if ( |butt_el && time_cnt == 3'b011) begin
-                            next = WAIT;
-                            doors <= 1'b0;
-                            time_cnt <= 1'b0;
-                            flag_pass <= 1'b0;
-                            flag_butt <= 1'b1;
-                    end
-                    if (time_cnt == 3'b011 && (|pass_f == 0 && |butt_el == 0)) begin
+                    else if (time_cnt == 3'b011 && |SW[2:0] == 0) begin
                             doors <= 1'b0;
                             next = WAIT;
                     end
