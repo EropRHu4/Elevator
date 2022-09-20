@@ -29,7 +29,7 @@ input        clk,
        [3:0] SW,
 
 output [7:0] HEX,    
-       [2:0] AN,
+       [7:0] AN,
   reg  [7:0] LED
 
     );
@@ -39,8 +39,9 @@ output [7:0] HEX,
               MOVE     = 2'b10,     // движение лифта до этажа, на который нажал пассажир в лифте
               DOORS    = 2'b11;     // работа дверей
 
-reg [7:0] hex;
+reg [7:0] assist_hex;
 
+reg [7:0] assist_an;
 
 reg [1:0] state, next;
 
@@ -54,7 +55,24 @@ reg [2:0] time_cnt = 0;
 
 reg [2:0] elev_f_o = 0;
 
-reg [31:0] cnt = 'd0;
+reg [27:0] cnt = 0;
+
+assign AN = assist_an;
+assign HEX = assist_hex;
+
+always @(posedge clk) begin
+    assist_an <= 8'b1111_1110;
+    case(elev_f_o)
+        'b001: assist_hex <= 8'b1111_1001; //1
+        'b010: assist_hex <= 8'b1010_0100; //2
+        'b011: assist_hex <= 8'b1011_0000; //3
+        'b100: assist_hex <= 8'b1001_1001; //4
+        'b101: assist_hex <= 8'b1001_0010; //5
+        'b110: assist_hex <= 8'b1000_0010; //6
+        'b111: assist_hex <= 8'b1111_1000; //7
+        default: assist_hex <= 8'b1111_1001; //1
+    endcase
+end
 
 always @( posedge clk or negedge rst_n) begin
     if ( !rst_n ) state <= IDLE;
@@ -63,16 +81,17 @@ always @( posedge clk or negedge rst_n) begin
     end
 end
 
-
 always @( posedge clk ) begin
     next = 'bx;
+    LED[elev_f_o - 1] <= 1'b1;
     case( state )
     IDLE: begin
             doors <= 1'b0;
             next = WAIT;
             LED[0] <= 1'b1;
-            elev_f_o <= 1'b0;
-            LED[7:1] <= 0;
+            elev_f_o <= 1'b1;
+            LED[6:0] <= 0;
+//            assist_hex <= 8'b1111_1001;
           end
 
     WAIT: begin
@@ -84,21 +103,24 @@ always @( posedge clk ) begin
     MOVE: begin
             if ( |SW[2:0] ) begin
                 butt <= 1'b1;
-                LED[elev_f_o] <= 1'b0;
                 if ( elev_f_o != SW[2:0] && SW[3]) begin
-                        elev_f_o <= elev_f_o < SW[2:0] ? elev_f_o + 1 : elev_f_o - 1;
                         next = MOVE;
-//                        if (cnt != 'd4000_000_000) begin
-//                            cnt <= cnt + 'd1;
-//                            LED[elev_f_o] <= 1'b1;
-//                        end
-//                        else LED[elev_f_o] <= 1'b0;
+                        if (cnt != 'd250_000_000) begin
+                            cnt <= cnt + 1;
+                            LED[elev_f_o - 1] <= 1'b1;
+                        end
+                        else begin
+                            LED[elev_f_o - 1] <= 1'b0;
+                            elev_f_o <= elev_f_o < SW[2:0] ? elev_f_o + 1 : elev_f_o - 1;
+                            cnt <= 0;
+                        end
                 end
                 else if( elev_f_o == SW[2:0] ) begin
                             butt <= 1'b0;
                             next = DOORS;
-                            LED[elev_f_o] <= 1'b1;
+                            LED[elev_f_o - 1] <= 1'b1;
                 end
+                else next = MOVE;
             end
             else 
                 next = WAIT; 
@@ -108,7 +130,6 @@ always @( posedge clk ) begin
                     doors <= 1'b1;
                     if ( time_cnt != 3'b011 ) begin
                             time_cnt <= time_cnt + 1'b1;
-                            next = DOORS;
                     end
                     if ( |SW[2:0] && time_cnt == 3'b011 ) begin
                             next = WAIT;
