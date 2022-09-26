@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 12.07.2022 12:34:07
+// Create Date: 26.09.2022 11:10:27
 // Design Name: 
-// Module Name: Lift_tb
+// Module Name: elevator_tb
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -21,62 +21,49 @@
 
 
 module elevator_tb();
-      reg   clk;
-      reg   rst_n;
-//      reg   num_of_floors;    // количество этажей в доме
-      reg   [2:0] butt_el = 3'b000;          // кнопка с номерам этажа в лифте
-//      reg   butt_up_down = 0;     // кнопка вызова лифта на этаже
-//      reg   [2:0] elev_f;           // этаж на котором находится лифт
-      reg   [2:0] pass_f = 3'b000;           // этаж на котором пассажир нажал кнопку вызова
-//      reg   busy_i;           // состояние лифта свободен/занят
+      reg        clk;
+      reg        rst_n;
+      reg  [3:0] SW;
       
-      wire [2:0] elev_f_o;
-      wire  busy_o;
+      wire [7:0] HEX;
+      wire [7:0] LED;
+      wire [7:0] AN;
       
-      Lift      elev_tb (
+      top      elev_tb 
+      (
       .clk              (clk),
       .rst_n            (rst_n),
-      .butt_el          (butt_el),
-//      .butt_up_down     (butt_up_down),
-      .pass_f           (pass_f),
-      .elev_f_o         (elev_f_o),
-      .busy_o           (busy_o)
+      .SW               (SW),
+      .HEX              (HEX),
+      .LED              (LED),
+      .AN               (AN)
       );
       
       always begin
-      #1;
+      #10;
       clk = ~clk;
       end
       
       initial begin
       clk = 1'b0;
       rst_n = 0;
-      #10;
+      #50;
       rst_n = 1;
       
       
-      pass_f = 3'b011;  // пассажир на 3
+      SW[2:0] = 3'b011;
+      SW[3] = 1;
       #100;
-      pass_f = 0;
-      if (elev_f_o == 3'b011) butt_el = 3'b111; // 7
+      SW[3] = 0;
       #100;
-      butt_el = 0;
+      SW[2:0] = 3'b001;
+      SW[3] = 1;
+      #100;
+      SW[3] = 0;
+       #100;
+      SW[2:0] = 3'b111;
+      SW[3] = 1;
       
-      
-      pass_f = 3'b001; // 1
-      #100;
-      pass_f = 0;
-      if (elev_f_o == 3'b001) butt_el = 3'b010;  // 2
-      #100;
-      butt_el = 0;
-      
-      
-      pass_f = 3'b111; // 7
-      #100;
-      pass_f = 0;
-      if (elev_f_o == 3'b111) butt_el = 3'b110;  // 6
-      #100;
-      butt_el = 0;
       end
       
 endmodule
