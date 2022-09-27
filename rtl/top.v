@@ -24,7 +24,7 @@ module top(
 
 input        clk,
              rst_n,
-       [3:0] SW,                 // этаж на котором пассажир нажал кнопку вызова
+       [3:0] SW,
 
 output [7:0] HEX,    
        [7:0] AN,
@@ -32,11 +32,16 @@ output [7:0] HEX,
 
     );
 
+    reset_n reset
+    (
+     .clk           (clk),
+     .reset_n       (reset_n)
+    );
     
     elevator el
     (
       .clk              (clk),
-      .rst_n            (rst_n),   
+      .rst_n            (reset_n * rst_n),   
       .SW               (SW),
       .HEX              (HEX),
       .AN               (AN),
