@@ -23,18 +23,23 @@
 module reset_n(
 
 input clk,
+      rst_n,
 
-output reg reset_n
+output reg reset_n = 0  // 10000 
 
     );
 
-reg [5:0] count = 0;
+reg [13:0] count = 'b0;
 
 always @(posedge clk) begin
-    if (count != 'b111_111)
-        count <= count + 'b1;
+    if (rst_n) begin
+        if (count != 'd10_000)
+            count <= count + 'b1;
+        else
+            reset_n <= 1;
+    end
     else
-        reset_n <= 1;
+            reset_n <= rst_n;
 end
-    
+
 endmodule
