@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 26.09.2022 10:57:04
+// Create Date: 27.09.2022 11:37:54
 // Design Name: 
 // Module Name: top
 // Project Name: 
@@ -23,7 +23,7 @@
 module top(
 
 input        clk,
-             rst_n,
+             reset_n,
        [3:0] SW,
 
 output [7:0] HEX,    
@@ -32,16 +32,32 @@ output [7:0] HEX,
 
     );
 
-    reset_n reset
+reg rst_n_1;
+reg rst_n_2;
+
+always @(posedge clk) begin
+    rst_n_1 <= reset_n;
+    rst_n_2 <= rst_n_1;
+end
+
+    button_debouncer debounce
     (
-     .clk           (clk),
-     .reset_n       (reset_n)
+      .clk              (clk),
+      .rst_n            (rst_n_2),
+      .rst_n_db         (rst_n_db)
     );
     
+    reset_n reset
+    (
+      .clk              (clk),
+      .rst_n            (rst_n_db),
+      .reset_n          (rst_n)
+    );
+   
     elevator el
     (
       .clk              (clk),
-      .rst_n            (reset_n * rst_n),   
+      .rst_n            (rst_n),   
       .SW               (SW),
       .HEX              (HEX),
       .AN               (AN),
