@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 26.09.2022 11:10:27
+// Create Date: 27.09.2022 11:45:03
 // Design Name: 
 // Module Name: elevator_tb
 // Project Name: 
@@ -21,18 +21,23 @@
 
 
 module elevator_tb();
+      parameter  SIMULATION = 1;
       reg        clk;
-      reg        rst_n;
+      reg        reset_n;
       reg  [3:0] SW;
       
       wire [7:0] HEX;
       wire [7:0] LED;
       wire [7:0] AN;
       
-      top      elev_tb 
+      top
+      #(
+      .SIMULATION(SIMULATION)
+      )
+      elev_tb
       (
       .clk              (clk),
-      .rst_n            (rst_n),
+      .reset_n          (reset_n),
       .SW               (SW),
       .HEX              (HEX),
       .LED              (LED),
@@ -46,9 +51,9 @@ module elevator_tb();
       
       initial begin
       clk = 1'b0;
-      rst_n = 0;
-      #50;
-      rst_n = 1;
+      reset_n = 0;
+      #100;
+      reset_n = 1;
       
       
       SW[2:0] = 3'b011;
