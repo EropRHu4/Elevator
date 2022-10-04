@@ -20,7 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module reset_n(
+module reset_n
+#(
+  parameter SIMULATION = 1'b0
+  )
+(
 
 input clk,
       rst_n,
@@ -29,11 +33,14 @@ output reg reset_n = 0  // 10000
 
     );
 
+parameter RESET_TIMER_MS = 10000;
+parameter TIMER_MAX = SIMULATION ? 10 : RESET_TIMER_MS;
+
 reg [13:0] count = 'b0;
 
 always @(posedge clk) begin
     if (rst_n) begin
-        if (count != 'd10_000)
+        if (count != TIMER_MAX)
             count <= count + 'b1;
         else
             reset_n <= 1;
