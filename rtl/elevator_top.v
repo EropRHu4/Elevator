@@ -20,8 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(
-
+module top
+#(
+  parameter SIMULATION = 1'b0
+ )
+ (
 input        clk,
              reset_n,
        [3:0] SW,
@@ -47,7 +50,11 @@ end
       .rst_n_db         (rst_n_db)
     );
     
-    reset_n reset
+    reset_n 
+    #(
+    .SIMULATION(SIMULATION)
+    )
+    reset
     (
       .clk              (clk),
       .rst_n            (rst_n_db),
