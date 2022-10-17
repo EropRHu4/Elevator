@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top
+module elevator_top
 #(
   parameter SIMULATION = 1'b0
  )
@@ -35,8 +35,10 @@ output [7:0] HEX,
 
     );
 
-reg rst_n_1;
-reg rst_n_2;
+reg rst_n_1;  // for metastability
+reg rst_n_2;  // for metastability
+reg rst_n_db; // after debounce
+reg rst_n; // after reset_n module
 
 always @(posedge clk) begin
     rst_n_1 <= reset_n;
@@ -71,5 +73,15 @@ end
       .LED              (LED)
     );
     
+    vga_controller vga
+    (
+     .clk               (clk),
+     .rst               (rst_n),
+     .VGA_R             (VGA_R),
+     .VGA_G             (VGA_G),
+     .VGA_B             (VGA_B),
+     .VGA_HS            (VGA_HS),
+     .VGA_VS            (VGA_VS)
+    );
 
 endmodule
