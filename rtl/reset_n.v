@@ -42,11 +42,15 @@ always @(posedge clk) begin
     if (rst_n) begin
         if (count != TIMER_MAX)
             count <= count + 'b1;
-        else
+        else begin
             reset_n <= 1;
+            count <= 0;
+        end
     end
-    else
+    else begin
             reset_n <= rst_n;
+            count <= 0;
+    end
 end
 
 endmodule
