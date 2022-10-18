@@ -70,21 +70,18 @@ always @(posedge clk) begin
     endcase
 end
 
-always @( posedge clk or negedge rst_n) begin
-    if ( !rst_n ) state <= IDLE;
+always @( posedge clk ) begin
+    if ( !rst_n ) begin
+        state <= IDLE;
+        doors <= 1'b0;
+        elev_f_o <= 1'b1;
+    end
     else begin
-        state <= 'bx;
         case( state )
         IDLE: begin
-                    doors <= 1'b0;
-                    state <= WAIT;
-                    elev_f_o <= 1'b1;
-              end
-
-        WAIT: begin
-              if ( |SW[2:0] )
+                if ( |SW[2:0] )
                     state <= MOVE;
-              else  state <= WAIT;
+                else state <= IDLE;
               end
 
         MOVE: begin
@@ -102,12 +99,12 @@ always @( posedge clk or negedge rst_n) begin
                     end
                     else if( elev_f_o == SW[2:0] ) begin
                                 butt <= 1'b0;
-                                state <= WAIT;
+                                state <= IDLE;
                     end
                     else state <= MOVE;
               end
               else 
-                    state <= WAIT; 
+                    state <= IDLE; 
               end
               
         default:    begin
