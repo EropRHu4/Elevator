@@ -41,9 +41,13 @@ always @(posedge clk) begin
         else begin
             prev <= rst_n;
             rst_n_db <= rst_n;
+            count <= 0;
         end
     end
-    else rst_n_db <= rst_n;
+    else begin
+        rst_n_db <= rst_n;
+        count <= 0;
+    end
 end
     
 endmodule
