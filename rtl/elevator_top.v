@@ -20,68 +20,90 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module elevator_top
+`define COLOR_BITS          'd4
+`define RED               'b111100000000
+`define GREEN               'b000011110000
+`define BLUE                'b000000001111
+`define BLACK               'b000000000000
+`define WHITE               'b111111111111
+`define CYAN                'b000011111111
+
+/*`define RED     'b111000000
+`define GREEN   'b000111000
+`define BLUE    'b000000111
+`define BLACK   'b000000000
+`define WHITE   'b111111111
+`define CYAN    'b000111111
+`define YELLOW  'b111111000*/
+
+`define SCREEN_MAX_Xbits    'd5
+`define SCREEN_MAX_Ybits    'd5
+
+`define SCREEN_MAX_X        'd32 //(1 << `SCREEN_MAX_Xbits)
+`define SCREEN_MAX_Y        'd32 //(1 << `SCREEN_MAX_Ybits)
+
+module top
 #(
   parameter SIMULATION = 1'b0
  )
  (
-input        clk,
-             reset_n,
-       [3:0] SW,
+input                                  CLK,
+input                                  RESET_N,
+input           [3:0]                  SW,
 
-output [7:0] HEX,    
-       [7:0] AN,
-       [7:0] LED
+output          [7:0]                  HEX,    
+output          [7:0]                  AN,
+output          [7:0]                  LED,
+output          [`COLOR_BITS - 1 : 0 ] RED, 
+output          [`COLOR_BITS - 1 : 0 ] GREEN, 
+output          [`COLOR_BITS - 1 : 0 ] BLUE,
+output   wire                          HSYNC, 
+output   wire                          VSYNC
 
     );
 
 reg rst_n_1;  // for metastability
 reg rst_n_2;  // for metastability
-reg rst_n_db; // after debounce
-reg rst_n; // after reset_n module
+wire rst_n_db; // after debounce
+wire rst_n; // after reset_n module
 
-always @(posedge clk) begin
-    rst_n_1 <= reset_n;
+always @(posedge CLK) begin
+    rst_n_1 <= RESET_N;
     rst_n_2 <= rst_n_1;
 end
 
-    button_debouncer debounce
+    button_debouncer 
+    button_debouncer_rst
     (
-      .clk              (clk),
+      .clk              (CLK),
       .rst_n            (rst_n_2),
       .rst_n_db         (rst_n_db)
     );
     
-    reset_n 
+    reset_n_rst 
     #(
     .SIMULATION(SIMULATION)
     )
     reset
     (
-      .clk              (clk),
+      .clk              (CLK),
       .rst_n            (rst_n_db),
       .reset_n          (rst_n)
     );
    
     elevator el
     (
-      .clk              (clk),
+      .clk              (CLK),
       .rst_n            (rst_n),   
       .SW               (SW),
       .HEX              (HEX),
       .AN               (AN),
-      .LED              (LED)
+      .LED              (LED),
+      .red              (RED),
+      .green            (GREEN),
+      .blue             (BLUE),
+      .hsync            (HSYNC),
+      .vsync            (VSYNC)
     );
     
-    vga_controller vga
-    (
-     .clk               (clk),
-     .rst               (rst_n),
-     .VGA_R             (VGA_R),
-     .VGA_G             (VGA_G),
-     .VGA_B             (VGA_B),
-     .VGA_HS            (VGA_HS),
-     .VGA_VS            (VGA_VS)
-    );
-
 endmodule
