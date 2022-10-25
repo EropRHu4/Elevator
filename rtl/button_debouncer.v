@@ -21,17 +21,15 @@
 
 
 module button_debouncer(
-input   clk,
-        rst_n,
+input          clk,
+input          rst_n,
 
-output  reg rst_n_db = 0
+output   reg   rst_n_db = 0
     );
 
 reg prev = 0;
 
 reg [9:0] count = 0; //1000
-
-initial prev = rst_n;
 
 always @(posedge clk) begin
     if (prev != rst_n) begin
