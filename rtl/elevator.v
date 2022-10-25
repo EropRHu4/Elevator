@@ -21,27 +21,6 @@
 
 
 `define COLOR_BITS          'd4
-`define RED                 'b111100000000
-`define GREEN               'b000011110000
-`define BLUE                'b000000001111
-`define BLACK               'b000000000000
-`define WHITE               'b111111111111
-`define CYAN                'b000011111111
-
-/*`define RED     'b111000000
-`define GREEN   'b000111000
-`define BLUE    'b000000111
-`define BLACK   'b000000000
-`define WHITE   'b111111111
-`define CYAN    'b000111111
-`define YELLOW  'b111111000*/
-
-`define SCREEN_MAX_Xbits    'd5
-`define SCREEN_MAX_Ybits    'd5
-
-`define SCREEN_MAX_X        'd32 //(1 << `SCREEN_MAX_Xbits)
-`define SCREEN_MAX_Y        'd32 //(1 << `SCREEN_MAX_Ybits)
-
 
 module elevator(
 
@@ -75,8 +54,6 @@ reg butt = 1'b0;
 reg [2:0] elev_f_o = 0;
 
 reg [27:0] cnt = 0;
-
-assign elev_o = elev_f_o;
 
 hex_controller hex
 (
