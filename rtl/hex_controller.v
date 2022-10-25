@@ -21,23 +21,24 @@
 
 
 module hex_controller(
-input             clk,
-                  rst_n,
-         [2:0]    elev_f_o,
+input                  clk,
+input                  rst_n,
+input          [2:0]   elev_f_o,
 
-output   [7:0]    HEX,    
-         [7:0]    AN
+output         [7:0]   HEX,    
+output         [7:0]   AN
     );
   
 reg [7:0] assist_hex;
 
-reg [7:0] assist_an;
+wire [7:0] assist_an;
+
+assign assist_an = 8'b1111_1110;
 
 assign AN = assist_an;
 assign HEX = assist_hex;
 
 always @(posedge clk) begin
-    assist_an <= 8'b1111_1110;
     case(elev_f_o)
         'b001: assist_hex <= 8'b1111_1001; //1
         'b010: assist_hex <= 8'b1010_0100; //2
@@ -51,3 +52,4 @@ always @(posedge clk) begin
 end
     
 endmodule
+
