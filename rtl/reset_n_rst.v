@@ -20,16 +20,16 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module reset_n
+module reset_n_rst
 #(
   parameter SIMULATION = 1'b0
   )
 (
 
-input clk,
-      rst_n,
+input          clk,
+input          rst_n,
 
-output reg reset_n = 0  // 10000 
+output   reg   reset_n = 0  // 10000 
 
     );
 
